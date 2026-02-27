@@ -1,1 +1,508 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolidated Event Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .step-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .radio-card-input:checked + .radio-card-body {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+        }
+        .radio-card-input:checked + .radio-card-body .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <!-- SIMULATOR CONTROL PANEL (For internal testing only) -->
+    <div class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-md flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <i data-lucide="settings-2" class="w-5 h-5 text-blue-400"></i>
+            <span class="font-semibold text-sm">Dev Simulator:</span>
+            <span class="text-xs text-slate-400">Test how the form looks when embedded on different sites</span>
+        </div>
+        <select id="hostSimulator" class="bg-slate-800 border border-slate-700 text-sm rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="cdc-sg">Simulate hosting on: CDC Singapore</option>
+            <option value="cdc-jk">Simulate hosting on: CDC Jakarta</option>
+            <option value="wm-summit-my">Simulate hosting on: w.media Summit Malaysia</option>
+            <option value="wm-awards-ap">Simulate hosting on: w.media APAC Awards</option>
+        </select>
+    </div>
+
+    <!-- MAIN FORM CONTAINER -->
+    <div class="max-w-3xl mx-auto mt-10 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 px-8 py-6 text-white text-center">
+            <h1 class="text-2xl font-bold tracking-tight">Partnership & Participation Form</h1>
+            <p class="text-blue-100 mt-2 text-sm">Join our premier digital infrastructure & tech events across APAC</p>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="px-8 pt-6 pb-2 border-b border-slate-100 bg-slate-50/50">
+            <div class="flex items-center justify-between relative">
+                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-slate-200 z-0 rounded-full"></div>
+                <div id="progress-bar" class="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-blue-600 z-0 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                
+                <div class="step-indicator relative z-10 flex flex-col items-center gap-2 bg-slate-50 px-2" data-step="1">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md transition-colors duration-300 border-2 border-white step-circle">1</div>
+                    <span class="text-xs font-semibold text-blue-700">Event</span>
+                </div>
+                <div class="step-indicator relative z-10 flex flex-col items-center gap-2 bg-slate-50 px-2" data-step="2">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300">2</div>
+                    <span class="text-xs font-medium text-slate-500">Interest</span>
+                </div>
+                <div class="step-indicator relative z-10 flex flex-col items-center gap-2 bg-slate-50 px-2" data-step="3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300">3</div>
+                    <span class="text-xs font-medium text-slate-500">Details</span>
+                </div>
+                <div class="step-indicator relative z-10 flex flex-col items-center gap-2 bg-slate-50 px-2" data-step="4">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300">4</div>
+                    <span class="text-xs font-medium text-slate-500">Done</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <!-- STEP 1: EVENT SELECTION -->
+            <div id="step-1" class="step-content active">
+                <h2 class="text-xl font-bold mb-1">Select Event</h2>
+                <p class="text-slate-500 text-sm mb-6">Confirm the event you are inquiring about.</p>
+
+                <!-- Featured / Hosted Event Container -->
+                <div id="featured-event-container" class="mb-8">
+                    <!-- Rendered via JS -->
+                </div>
+
+                <div class="flex items-center gap-4 mb-4">
+                    <hr class="flex-grow border-slate-200">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Or explore other regions</span>
+                    <hr class="flex-grow border-slate-200">
+                </div>
+
+                <!-- Other Events Grid -->
+                <div id="other-events-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+
+            <!-- STEP 2: PARTICIPATION TYPE -->
+            <div id="step-2" class="step-content">
+                <h2 class="text-xl font-bold mb-1">How would you like to participate?</h2>
+                <p id="step-2-subtitle" class="text-slate-500 text-sm mb-6">Select your area of interest for <span id="display-selected-event" class="font-semibold text-blue-600">the event</span>.</p>
+
+                <div id="interests-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rendered via JS based on Category (CDC vs w.media) -->
+                </div>
+            </div>
+
+            <!-- STEP 3: LEAD DETAILS -->
+            <div id="step-3" class="step-content">
+                <h2 class="text-xl font-bold mb-1">Your Details</h2>
+                <p class="text-slate-500 text-sm mb-6">Let us know how to reach you regarding your selection.</p>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
+                            <input type="text" id="fname" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="John">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Last Name *</label>
+                            <input type="text" id="lname" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Doe">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Work Email *</label>
+                        <input type="email" id="email" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="john@company.com">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Company *</label>
+                            <input type="text" id="company" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Acme Corp">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Job Title *</label>
+                            <input type="text" id="jobtitle" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Marketing Director">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Additional Comments</label>
+                        <textarea id="comments" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Any specific requirements?"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: SUCCESS -->
+            <div id="step-4" class="step-content text-center py-8">
+                <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="check-circle" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Inquiry Submitted!</h2>
+                <p class="text-slate-500 mb-6 max-w-md mx-auto">Thank you for your interest. Your data has been successfully routed to the <span id="final-bucket" class="font-bold text-blue-600"></span> team. Our representatives will contact you shortly.</p>
+                
+                <div class="bg-slate-50 rounded-lg p-4 text-left max-w-sm mx-auto text-sm border border-slate-200">
+                    <p class="font-semibold text-slate-700 border-b border-slate-200 pb-2 mb-2">Summary of your request:</p>
+                    <ul class="space-y-1 text-slate-600">
+                        <li><span class="text-slate-400">Event:</span> <span id="summary-event" class="font-medium"></span></li>
+                        <li><span class="text-slate-400">Interest:</span> <span id="summary-interest" class="font-medium"></span></li>
+                        <li><span class="text-slate-400">Email:</span> <span id="summary-email" class="font-medium"></span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Navigation -->
+            <div id="form-footer" class="mt-8 flex justify-between items-center border-t border-slate-100 pt-6">
+                <button id="btn-back" class="hidden px-6 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 transition-colors flex items-center gap-2">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                </button>
+                <div class="flex-grow"></div>
+                <button id="btn-next" class="px-6 py-2.5 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm">
+                    Next Step <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+                <button id="btn-submit" class="hidden px-8 py-2.5 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm">
+                    Submit Inquiry <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        // Simulating the 2 main categories requested by Vince
+        const MAIN_CATEGORIES = {
+            'CDC': ['Speaker', 'Sponsor', 'Exhibit', 'Tailored Marketing'],
+            'w.media': ['Summit Attendance', 'HPC Participation', 'Connect Event', 'Awards/w.media']
+        };
+
+        // Simulating regional events
+        const EVENTS = [
+            { id: 'cdc-sg', name: 'CDC Singapore', category: 'CDC', region: 'Southeast Asia', icon: 'map-pin', image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop' },
+            { id: 'cdc-jk', name: 'CDC Jakarta', category: 'CDC', region: 'Southeast Asia', icon: 'map-pin', image: 'https://images.unsplash.com/photo-1555899434-94d1368aa7af?w=400&h=300&fit=crop' },
+            { id: 'cdc-syd', name: 'CDC Sydney', category: 'CDC', region: 'ANZ', icon: 'map-pin', image: 'https://images.unsplash.com/photo-1523908511403-7fc7b25592f4?w=400&h=300&fit=crop' },
+            { id: 'wm-summit-my', name: 'w.media Cloud Summit Malaysia', category: 'w.media', region: 'Southeast Asia', icon: 'cloud', image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=400&h=300&fit=crop' },
+            { id: 'wm-hpc-in', name: 'w.media HPC Connect India', category: 'w.media', region: 'South Asia', icon: 'server', image: 'https://images.unsplash.com/photo-1592096304832-62463bfdc822?w=400&h=300&fit=crop' },
+            { id: 'wm-awards-ap', name: 'w.media APAC Awards', category: 'w.media', region: 'APAC', icon: 'award', image: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?w=400&h=300&fit=crop' },
+        ];
+
+        let currentStep = 1;
+        let hostSiteId = 'cdc-sg'; // This would dynamically come from URL parameters or CMS injection
+        
+        // Auto-initialize form data with the current host site
+        let formData = {
+            selectedEvents: [hostSiteId], 
+            interests: [],
+            fname: '',
+            lname: '',
+            email: '',
+            company: '',
+            jobtitle: '',
+            comments: ''
+        };
+
+        // --- DOM ELEMENTS ---
+        const btnBack = document.getElementById('btn-back');
+        const btnNext = document.getElementById('btn-next');
+        const btnSubmit = document.getElementById('btn-submit');
+        const footer = document.getElementById('form-footer');
+        const hostSimulator = document.getElementById('hostSimulator');
+
+        // --- INITIALIZATION ---
+        function init() {
+            // Ensure the current host site is auto-selected by default
+            formData.selectedEvents = [hostSiteId];
+
+            lucide.createIcons();
+            renderStep1();
+            updateUI();
+
+            // Event Listeners for Navigation
+            btnNext.addEventListener('click', () => {
+                if (validateStep()) {
+                    currentStep++;
+                    if(currentStep === 2) renderStep2();
+                    updateUI();
+                }
+            });
+
+            btnBack.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateUI();
+                }
+            });
+
+            btnSubmit.addEventListener('click', () => {
+                if (validateStep()) {
+                    submitForm();
+                }
+            });
+
+            // Simulator Listener
+            hostSimulator.addEventListener('change', (e) => {
+                hostSiteId = e.target.value;
+                
+                // Auto-select the new host site as the only initial selection
+                formData.selectedEvents = [hostSiteId]; 
+                
+                currentStep = 1;
+                formData.interests = []; // Clear previous interests
+                renderStep1();
+                updateUI();
+            });
+        }
+
+        // --- RENDER LOGIC ---
+        function renderStep1() {
+            const hostEvent = EVENTS.find(e => e.id === hostSiteId);
+            const otherEvents = EVENTS.filter(e => e.id !== hostSiteId);
+
+            // Render Hosted Event (Highlighted)
+            document.getElementById('featured-event-container').innerHTML = `
+                <div class="relative">
+                    <span class="absolute -top-3 left-4 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded border border-blue-200 z-10 shadow-sm">Current Site</span>
+                    <label class="cursor-pointer block relative">
+                        <input type="checkbox" value="${hostEvent.id}" class="sr-only radio-card-input" ${formData.selectedEvents.includes(hostEvent.id) ? 'checked' : ''} onchange="toggleEvent('${hostEvent.id}')">
+                        <div class="radio-card-body border-2 border-slate-200 rounded-xl p-4 sm:p-5 hover:border-blue-300 transition-all bg-white relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-blue-600"></div>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <img src="${hostEvent.image}" alt="${hostEvent.name}" class="w-full sm:w-28 sm:h-20 h-32 object-cover rounded-lg border border-slate-100 shadow-sm flex-shrink-0">
+                                <div class="flex items-start justify-between w-full">
+                                    <div>
+                                        <h3 class="font-bold text-lg text-slate-800">${hostEvent.name}</h3>
+                                        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+                                            <span class="inline-block w-2 h-2 rounded-full ${hostEvent.category === 'CDC' ? 'bg-purple-500' : 'bg-orange-500'}"></span>
+                                            Category: <span class="font-medium">${hostEvent.category}</span> • ${hostEvent.region}
+                                        </p>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center check-icon opacity-0 transition-all text-blue-600 bg-blue-100 border-blue-600 flex-shrink-0 ml-2">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            `;
+
+            // Render Other Events
+            let otherHtml = '';
+            otherEvents.forEach(evt => {
+                otherHtml += `
+                    <label class="cursor-pointer block h-full">
+                        <input type="checkbox" value="${evt.id}" class="sr-only radio-card-input" ${formData.selectedEvents.includes(evt.id) ? 'checked' : ''} onchange="toggleEvent('${evt.id}')">
+                        <div class="radio-card-body border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all bg-white relative h-full flex flex-col">
+                            <img src="${evt.image}" alt="${evt.name}" class="w-full h-32 object-cover rounded-lg border border-slate-100 shadow-sm mb-3 flex-shrink-0">
+                            <div class="flex items-start justify-between mt-auto">
+                                <div>
+                                    <h3 class="font-semibold text-slate-800">${evt.name}</h3>
+                                    <p class="text-slate-400 text-xs mt-1 flex items-center gap-1">
+                                        <span class="inline-block w-1.5 h-1.5 rounded-full ${evt.category === 'CDC' ? 'bg-purple-400' : 'bg-orange-400'}"></span>
+                                        ${evt.category}
+                                    </p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-icon opacity-0 transition-all text-blue-600 bg-blue-100 border-blue-600 flex-shrink-0 ml-2">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                `;
+            });
+            document.getElementById('other-events-container').innerHTML = otherHtml;
+            
+            // Re-initialize icons for newly injected HTML
+            lucide.createIcons();
+        }
+
+        // Exposed to global scope for the inline onclick handlers
+        window.toggleEvent = function(id) {
+            if (formData.selectedEvents.includes(id)) {
+                formData.selectedEvents = formData.selectedEvents.filter(eventId => eventId !== id);
+            } else {
+                formData.selectedEvents.push(id);
+            }
+            formData.interests = []; // Reset interests when event selection changes to avoid conflicts
+        };
+
+        window.toggleInterest = function(opt) {
+            if (formData.interests.includes(opt)) {
+                formData.interests = formData.interests.filter(item => item !== opt);
+            } else {
+                formData.interests.push(opt);
+            }
+        };
+
+        function renderStep2() {
+            // Get all selected events and format their names
+            const selectedEventDetails = formData.selectedEvents.map(id => EVENTS.find(e => e.id === id));
+            const eventNames = selectedEventDetails.map(e => e.name).join(', ');
+            
+            document.getElementById('display-selected-event').textContent = eventNames;
+            
+            // Determine active categories based on selected events
+            const activeCategories = [...new Set(selectedEventDetails.map(e => e.category))];
+            
+            // Collect all unique participation options for the active categories
+            let options = [];
+            activeCategories.forEach(category => {
+                options = options.concat(MAIN_CATEGORIES[category]);
+            });
+            options = [...new Set(options)]; // Remove any duplicates just in case
+            
+            let html = '';
+            const icons = ['mic', 'briefcase', 'layout', 'target', 'users', 'award'];
+            
+            options.forEach((opt, index) => {
+                const icon = icons[index % icons.length];
+                html += `
+                    <label class="cursor-pointer block h-full">
+                        <input type="checkbox" name="interest_selection" value="${opt}" class="sr-only radio-card-input" ${formData.interests.includes(opt) ? 'checked' : ''} onchange="toggleInterest('${opt}')">
+                        <div class="radio-card-body border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-all bg-white flex flex-col items-center text-center h-full gap-3">
+                            <div class="w-12 h-12 rounded-full bg-slate-50 text-slate-600 flex items-center justify-center mb-1 group-hover:bg-blue-50 transition-colors">
+                                <i data-lucide="${icon}" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-semibold text-slate-800">${opt}</h3>
+                            <div class="mt-auto w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-icon opacity-0 transition-all text-blue-600 bg-blue-100 border-blue-600">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </label>
+                `;
+            });
+            document.getElementById('interests-container').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- UI & VALIDATION LOGIC ---
+        function updateUI() {
+            // Update Step Contents
+            document.querySelectorAll('.step-content').forEach((el, index) => {
+                if (index + 1 === currentStep) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+
+            // Update Progress Bar
+            const progress = ((currentStep - 1) / 3) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Update Step Indicators
+            document.querySelectorAll('.step-indicator').forEach((el, index) => {
+                const circle = el.querySelector('.step-circle');
+                const text = el.querySelector('span');
+                const stepNum = index + 1;
+
+                if (stepNum < currentStep) {
+                    // Completed
+                    circle.className = "w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300 shadow-md";
+                    circle.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
+                    text.className = "text-xs font-semibold text-green-600";
+                } else if (stepNum === currentStep) {
+                    // Current
+                    circle.className = "w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300 shadow-md";
+                    circle.innerHTML = stepNum;
+                    text.className = "text-xs font-bold text-blue-700";
+                } else {
+                    // Future
+                    circle.className = "w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm border-2 border-white step-circle transition-colors duration-300";
+                    circle.innerHTML = stepNum;
+                    text.className = "text-xs font-medium text-slate-500";
+                }
+            });
+            lucide.createIcons();
+
+            // Button Visibility
+            if (currentStep === 1) {
+                btnBack.classList.add('hidden');
+                btnNext.classList.remove('hidden');
+                btnSubmit.classList.add('hidden');
+            } else if (currentStep === 2) {
+                btnBack.classList.remove('hidden');
+                btnNext.classList.remove('hidden');
+                btnSubmit.classList.add('hidden');
+            } else if (currentStep === 3) {
+                btnBack.classList.remove('hidden');
+                btnNext.classList.add('hidden');
+                btnSubmit.classList.remove('hidden');
+            } else if (currentStep === 4) {
+                footer.classList.add('hidden'); // Hide footer on success
+            }
+        }
+
+        function validateStep() {
+            if (currentStep === 1) {
+                if (formData.selectedEvents.length === 0) {
+                    alert("Please select at least one event.");
+                    return false;
+                }
+            }
+            if (currentStep === 2) {
+                if (formData.interests.length === 0) {
+                    alert("Please select at least one way you would like to participate.");
+                    return false;
+                }
+            }
+            if (currentStep === 3) {
+                // Collect input data
+                formData.fname = document.getElementById('fname').value;
+                formData.lname = document.getElementById('lname').value;
+                formData.email = document.getElementById('email').value;
+                formData.company = document.getElementById('company').value;
+                formData.jobtitle = document.getElementById('jobtitle').value;
+                
+                if(!formData.fname || !formData.lname || !formData.email || !formData.company || !formData.jobtitle) {
+                    alert("Please fill in all required fields (*).");
+                    return false;
+                }
+                // Basic email check
+                if(!formData.email.includes('@')) {
+                    alert("Please enter a valid email address.");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function submitForm() {
+            // In a real scenario, this is where you POST to your backend/webhook
+            // which routes the lead to the "CDC Spreadsheet" or "w.media Spreadsheet" 
+            // based on `formData.category`
+            console.log("Submitting Data:", formData);
+
+            // Populate Success Screen data
+            const selectedEventDetails = formData.selectedEvents.map(id => EVENTS.find(e => e.id === id));
+            const eventNames = selectedEventDetails.map(e => e.name).join(', ');
+            const activeCategories = [...new Set(selectedEventDetails.map(e => e.category))].join(' & ');
+
+            document.getElementById('final-bucket').textContent = activeCategories; // CDC, w.media, or CDC & w.media
+            document.getElementById('summary-event').textContent = eventNames;
+            document.getElementById('summary-interest').textContent = formData.interests.join(', ');
+            document.getElementById('summary-email').textContent = formData.email;
+
+            // Move to success step
+            currentStep = 4;
+            updateUI();
+        }
+
+        // Start
+        window.onload = init;
+    </script>
+</body>
+</html>
